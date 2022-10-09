@@ -7,6 +7,17 @@
 
 char *argv[] = { "sh", 0 };
 
+void
+printNames(void)
+{
+  printf(1, "***\n");
+  printf(1, "Group 26:\n");
+  printf(1, "- Mahdi Cheraghi\n");
+  printf(1, "- Ali Mohammadi\n");
+  printf(1, "- Amir Mansooryar\n");
+  printf(1, "***\n");
+}
+
 int
 main(void)
 {
@@ -21,6 +32,7 @@ main(void)
 
   for(;;){
     printf(1, "init: starting sh\n");
+    printNames();
     pid = fork();
     if(pid < 0){
       printf(1, "init: fork failed\n");
