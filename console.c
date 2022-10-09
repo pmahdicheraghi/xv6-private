@@ -200,7 +200,8 @@ void
 consoleintr(int (*getc)(void))
 {
   int c, doprocdump = 0;
-  uint charPtr, lastChar;
+  uint charPtr, lastChar, firstChar;
+  char tempChar;
 
   acquire(&cons.lock);
   while((c = getc()) >= 0){
@@ -231,6 +232,26 @@ consoleintr(int (*getc)(void))
         }
         charPtr++;
       }   
+      break;
+    case C('R'):  // Reverse line.
+      lastChar = input.e;
+      // clear line and find first char
+      while(input.e != input.w && input.buf[--input.e % INPUT_BUF] != '\n'){
+        consputc(BACKSPACE);
+      }
+      charPtr = 0;
+      firstChar = input.e;
+      // reverse array
+      while(firstChar < (lastChar - charPtr++)){
+        tempChar = input.buf[(lastChar - charPtr) % INPUT_BUF];
+        input.buf[(lastChar - charPtr) % INPUT_BUF] = input.buf[firstChar % INPUT_BUF];
+        input.buf[firstChar % INPUT_BUF] = tempChar;
+        firstChar++;
+      }
+      // print in reverse order
+      while (input.e != lastChar){
+        consputc(input.buf[input.e++ % INPUT_BUF]);
+      }
       break;
     case C('H'): case '\x7f':  // Backspace
       if(input.e != input.w){
