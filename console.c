@@ -188,10 +188,19 @@ struct {
 
 #define C(x)  ((x)-'@')  // Control-x
 
+int
+isNumber(char c) {
+  if (c >= '0' && c <= '9')
+    return 1;
+  else 
+    return 0;
+}
+
 void
 consoleintr(int (*getc)(void))
 {
   int c, doprocdump = 0;
+  uint charPtr, lastChar;
 
   acquire(&cons.lock);
   while((c = getc()) >= 0){
@@ -206,6 +215,22 @@ consoleintr(int (*getc)(void))
         input.e--;
         consputc(BACKSPACE);
       }
+      break;
+    case C('N'):  // Remove number.
+      lastChar = input.e;
+      // clear line and find first char
+      while(input.e != input.w && input.buf[--input.e % INPUT_BUF] != '\n'){
+        consputc(BACKSPACE);
+      }
+      charPtr = input.e;
+      // put only non number chars
+      while(charPtr != lastChar){
+        if(!isNumber(input.buf[charPtr % INPUT_BUF])){
+          input.buf[input.e++] = input.buf[charPtr % INPUT_BUF];
+          consputc(input.buf[charPtr % INPUT_BUF]);
+        }
+        charPtr++;
+      }   
       break;
     case C('H'): case '\x7f':  // Backspace
       if(input.e != input.w){
