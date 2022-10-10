@@ -188,12 +188,39 @@ struct {
 
 #define C(x)  ((x)-'@')  // Control-x
 
-int
+typedef ushort bool;
+#define false 0
+#define true 1
+
+bool
 isNumber(char c) {
   if (c >= '0' && c <= '9')
     return 1;
   else 
     return 0;
+}
+
+#define COMMAND_MEMORY_LENGHT 15
+#define MAX_COMMAND_LENGTH 20
+
+char cmdAry[COMMAND_MEMORY_LENGHT][MAX_COMMAND_LENGTH] = { "" };
+uint cmdAryPtr = 0;
+
+int 
+findBestMatch(char* input, uint first, uint last) {
+  for(uint i = 0; i < COMMAND_MEMORY_LENGHT; i++){
+    bool isSame = true;
+    for(uint j = first; j < last; j++){
+      if(input[j % INPUT_BUF] != cmdAry[(cmdAryPtr - i) % COMMAND_MEMORY_LENGHT][j - first]){
+        isSame = false;
+        break;
+      }
+    }
+    if(isSame){
+      return (cmdAryPtr - i) % COMMAND_MEMORY_LENGHT;
+    }
+  }
+  return -1;
 }
 
 void
@@ -259,8 +286,37 @@ consoleintr(int (*getc)(void))
         consputc(BACKSPACE);
       }
       break;
+    case '\t':
+      lastChar = input.e;
+      // clear line and find first char
+      while(input.e != input.w && input.buf[--input.e % INPUT_BUF] != '\n'){
+        consputc(BACKSPACE);
+      }
+      int bestMatch = findBestMatch(input.buf, input.e, lastChar);
+      if(bestMatch != -1){
+        for(uint i = 0; (i < MAX_COMMAND_LENGTH) && (cmdAry[bestMatch][i] != '\n'); i++){
+          input.buf[input.e++ % INPUT_BUF] = cmdAry[bestMatch][i];
+          consputc(cmdAry[bestMatch][i]);
+        }
+      }
+      else{
+        while (input.e != lastChar){
+          consputc(input.buf[input.e++ % INPUT_BUF]);
+        }
+      }
+      break;
     default:
       if(c != 0 && input.e-input.r < INPUT_BUF){
+        // save command in array
+        if(c == '\n'){        
+          charPtr = input.e;
+          while(charPtr != input.w && input.buf[--charPtr % INPUT_BUF] != '\n');        
+          cmdAryPtr = (cmdAryPtr + 1) % COMMAND_MEMORY_LENGHT;
+          for (uint i = 0; (i < MAX_COMMAND_LENGTH - 1) && ((charPtr + i) < input.e) && (input.buf[(charPtr + i) % INPUT_BUF] != ' '); i++){
+            cmdAry[cmdAryPtr][i] = input.buf[(charPtr + i) % INPUT_BUF];
+            cmdAry[cmdAryPtr][i + 1] = '\n';
+          }
+        }
         c = (c == '\r') ? '\n' : c;
         input.buf[input.e++ % INPUT_BUF] = c;
         consputc(c);
