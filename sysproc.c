@@ -89,3 +89,36 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+// ------------------------------------------
+
+
+//FIRST SYSCALL
+
+
+int 
+sys_prime_number_factor(void) 
+{
+  struct proc *curproc = myproc();
+  int numberREG = curproc->tf->edx;
+  int n = numberREG;
+  int biggest_prime_factor = 0;
+  while(n > 1) {
+    if(n == biggest_prime_factor)
+      break;
+    for (int i = 2; i <= n; i++)
+    {
+      if (n % i == 0)
+      {
+        n = n / i;
+        if (i > biggest_prime_factor)
+        {
+          biggest_prime_factor = i;
+          break;
+        }
+      }
+    }
+  }
+  return biggest_prime_factor;
+} 
