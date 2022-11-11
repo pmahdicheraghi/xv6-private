@@ -107,6 +107,7 @@ extern int sys_uptime(void);
 // ------------------------------------------
 
 extern int sys_prime_number_factor(void);
+extern int sys_get_parent_pid(void);
 
 // ------------------------------------------
 
@@ -137,6 +138,7 @@ static int (*syscalls[])(void) = {
 // ------------------------------------------
 
 [SYS_prime_number_factor]   sys_prime_number_factor,
+[SYS_get_parent_pid]   sys_get_parent_pid,
 
 // ------------------------------------------
 

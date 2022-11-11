@@ -122,3 +122,11 @@ sys_prime_number_factor(void)
   }
   return biggest_prime_factor;
 } 
+
+
+
+int
+sys_get_parent_pid(void)
+{
+  return myproc()->parent->pid;
+}

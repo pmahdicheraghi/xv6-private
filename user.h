@@ -28,6 +28,7 @@ int uptime(void);
 // ------------------------------------------
 
 int prime_number_factor(void);
+int get_parent_pid(void);
 
 // ------------------------------------------
 

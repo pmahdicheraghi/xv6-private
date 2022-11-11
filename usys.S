@@ -32,5 +32,6 @@ SYSCALL(uptime)
 
 
 SYSCALL(prime_number_factor)
+SYSCALL(get_parent_pid)
 
 
