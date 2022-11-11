@@ -30,8 +30,8 @@ SYSCALL(sbrk)
 SYSCALL(sleep)
 SYSCALL(uptime)
 
+// -----------------------------------
 
 SYSCALL(prime_number_factor)
+SYSCALL(change_file_size)
 SYSCALL(get_parent_pid)
-
-

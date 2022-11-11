@@ -90,12 +90,7 @@ sys_uptime(void)
   return xticks;
 }
 
-
 // ------------------------------------------
-
-
-//FIRST SYSCALL
-
 
 int 
 sys_prime_number_factor(void) 

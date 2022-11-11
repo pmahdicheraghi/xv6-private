@@ -21,11 +21,8 @@
 #define SYS_mkdir  20
 #define SYS_close  21
 
-
 // ------------------------------------------
 
 #define SYS_prime_number_factor 22
+#define SYS_change_file_size 23
 #define SYS_get_parent_pid 25
-
-
-// ------------------------------------------

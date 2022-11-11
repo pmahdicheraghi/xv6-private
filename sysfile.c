@@ -442,3 +442,72 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+// ------------------------------------------
+
+int
+sys_change_file_size(void)
+{
+  char *path;
+  int size, fd;
+  struct file *f;
+  struct inode *ip;
+
+  if(argstr(0, &path) < 0 || argint(1, &size) < 0)
+    return -1;
+
+  begin_op();
+
+  if((ip = namei(path)) == 0){
+    end_op();
+    return -1;
+  }
+
+  ilock(ip);
+  if(ip->type != T_FILE){
+    iunlockput(ip);
+    end_op();
+    return -1;
+  }
+
+  if((f = filealloc()) == 0 || (fd = fdalloc(f)) < 0){
+    if(f)
+      fileclose(f);
+    iunlockput(ip);
+    end_op();
+    return -1;
+  }
+  iunlock(ip);
+
+  f->type = FD_INODE;
+  f->ip = ip;
+  f->off = 0;
+  f->readable = O_RDWR;
+  f->writable = O_RDWR;
+
+  cprintf("before size: %d ", ip->size);
+
+  if(size < 0){
+    return -1;
+    end_op();
+  }
+  if (size > ip->size){
+    f->off = ip->size;
+    char buf[((MAXOPBLOCKS-1-1-2) / 2) * BSIZE] = {'\0'};
+    filewrite(f, buf, size - ip->size);
+  }
+  else if (size < ip->size){
+    ilock(ip);
+    ip->size = size;
+    iupdate(ip);
+    iunlock(ip);
+  }
+
+  cprintf("new size:%d\n", ip->size);
+
+  myproc()->ofile[fd] = 0;
+  fileclose(f);
+
+  end_op();
+  return 0;
+}
