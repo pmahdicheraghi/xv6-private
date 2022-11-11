@@ -183,6 +183,7 @@ UPROGS=\
 	_zombie\
 	_prime_numbers\
 	_prime_number_factor\
+	_sys3\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
