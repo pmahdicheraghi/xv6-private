@@ -184,6 +184,7 @@ UPROGS=\
 	_prime_numbers\
 	_prime_number_factor\
 	_change_file_size\
+	_get_callers\
 	_sys3\
 
 fs.img: mkfs README $(UPROGS)

@@ -108,10 +108,10 @@ extern int sys_uptime(void);
 
 extern int sys_prime_number_factor(void);
 extern int sys_change_file_size(void);
+/*extern*/ int sys_get_callers(void);
 extern int sys_get_parent_pid(void);
 
 // ------------------------------------------
-
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -140,11 +140,36 @@ static int (*syscalls[])(void) = {
 
 [SYS_prime_number_factor]   sys_prime_number_factor,
 [SYS_change_file_size]      sys_change_file_size,
+[SYS_get_callers]           sys_get_callers,
 [SYS_get_parent_pid]        sys_get_parent_pid,
 
 // ------------------------------------------
 
 };
+
+int callers[NELEM(syscalls)][NPROC] = {0};
+
+int
+sys_get_callers(void)
+{
+  int syscall_num;
+
+  if(argint(0, &syscall_num) < 0)
+    return -1;
+
+
+  cprintf("Callers of syscall %d: ", syscall_num);
+  for (int i = 0; i < NPROC - 1; i++) {
+    if (callers[syscall_num][i + 1] == 0) {
+      cprintf("%d", callers[syscall_num][i]);
+      break;
+    }
+    cprintf("%d,", callers[syscall_num][i]);
+  }
+  cprintf("\n");
+
+  return 0;
+}
 
 void
 syscall(void)
@@ -154,6 +179,13 @@ syscall(void)
 
   num = curproc->tf->eax;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+    for (int i = 0; i < NPROC; i++) {
+      if (callers[num][i] == 0) {
+        callers[num][i] = curproc->pid;
+        break;
+      }
+    }
+    
     curproc->tf->eax = syscalls[num]();
   } else {
     cprintf("%d %s: unknown sys call %d\n",

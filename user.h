@@ -29,6 +29,7 @@ int uptime(void);
 
 int prime_number_factor(void);
 int change_file_size(const char*, int);
+int get_callers(int);
 int get_parent_pid(void);
 
 // ------------------------------------------
