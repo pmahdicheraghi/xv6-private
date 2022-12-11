@@ -18,7 +18,19 @@ int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
 
-static void wakeup1(void *chan);
+static void wakeup1(void* chan);
+
+unsigned long randstate = 1;
+unsigned int
+rand()
+{
+  randstate = randstate * 1664525 + 1013904223;
+  return randstate;
+}
+
+float pariorityRatio = 0.5;
+float arrivalRatio = 0.5;
+float cyclesRatio = 0.5;
 
 void
 pinit(void)
@@ -35,13 +47,13 @@ cpuid() {
 // Must be called with interrupts disabled to avoid the caller being
 // rescheduled between reading lapicid and running through the loop.
 struct cpu*
-mycpu(void)
+  mycpu(void)
 {
   int apicid, i;
-  
+
   if(readeflags()&FL_IF)
     panic("mycpu called with interrupts enabled\n");
-  
+
   apicid = lapicid();
   // APIC IDs are not guaranteed to be contiguous. Maybe we should have
   // a reverse map, or reserve a register to store &cpus[i].
@@ -55,7 +67,7 @@ mycpu(void)
 // Disable interrupts so that we are not rescheduled
 // while reading proc from the cpu structure
 struct proc*
-myproc(void) {
+  myproc(void) {
   struct cpu *c;
   struct proc *p;
   pushcli();
@@ -124,7 +136,7 @@ userinit(void)
   extern char _binary_initcode_start[], _binary_initcode_size[];
 
   p = allocproc();
-  
+
   initproc = p;
   if((p->pgdir = setupkvm()) == 0)
     panic("userinit: out of memory?");
@@ -149,6 +161,16 @@ userinit(void)
   acquire(&ptable.lock);
 
   p->state = RUNNABLE;
+
+  acquire(&tickslock);
+  p->arrivalTime = ticks;
+  release(&tickslock);
+  p->priority = 2;
+  p->cycles = 0;
+  p->lotteryTickets = 1;
+  p->pariorityRatio = pariorityRatio;
+  p->arrivalRatio = arrivalRatio;
+  p->cyclesRatio = cyclesRatio;
 
   release(&ptable.lock);
 }
@@ -216,6 +238,16 @@ fork(void)
 
   np->state = RUNNABLE;
 
+  acquire(&tickslock);
+  np->arrivalTime = ticks;
+  release(&tickslock);
+  np->priority = 2;
+  np->cycles = 0;
+  np->lotteryTickets = 1;
+  np->pariorityRatio = pariorityRatio;
+  np->arrivalRatio = arrivalRatio;
+  np->cyclesRatio = cyclesRatio;
+
   release(&ptable.lock);
 
   return pid;
@@ -275,7 +307,7 @@ wait(void)
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
-  
+
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -325,16 +357,26 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+
+  bool noLevel1Process = false;
+  bool noLevel2Process = false;
+
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+
+    noLevel1Process = true;
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) { // priority queue 1
+      if (p->state != RUNNABLE)
         continue;
+
+      if (p->priority != 1)
+        continue;
+
+      noLevel1Process = false;
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -342,6 +384,7 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      p->cycles += 0.1;
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
@@ -350,8 +393,79 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
     }
-    release(&ptable.lock);
+    noLevel2Process = true;
+    if (noLevel1Process) { // priority queue 2
+      uint sumOfLottery = 0;
+      for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state != RUNNABLE)
+          continue;
 
+        if (p->priority != 2)
+          continue;
+
+        noLevel2Process = false;
+
+        sumOfLottery += p->lotteryTickets;
+      }
+      if (!noLevel2Process) {
+        int randomLottery = rand() % sumOfLottery;
+
+        for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+          if (p->state != RUNNABLE)
+            continue;
+
+          if (p->priority != 2)
+            continue;
+
+          if (randomLottery < p->lotteryTickets) {
+            c->proc = p;
+            switchuvm(p);
+            p->state = RUNNING;
+            p->cycles += 0.1;
+
+            swtch(&(c->scheduler), p->context);
+            switchkvm();
+
+            c->proc = 0;
+            break;
+          }
+          else {
+            randomLottery -= p->lotteryTickets;
+          }
+        }
+      }
+    }
+    if (noLevel1Process && noLevel2Process) { // priority queue 3
+      struct proc* q = 0;
+      float minRank = 0;
+      for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state != RUNNABLE)
+          continue;
+
+        if (p->priority != 3)
+          continue;
+
+        float rank = p->priority * p->pariorityRatio + p->arrivalTime * p->arrivalRatio + p->cycles * p->cyclesRatio;
+        if (minRank == 0 || rank < minRank) {
+          minRank = rank;
+          q = p;
+        }
+      }
+      if (q != 0) {
+        c->proc = q;
+        switchuvm(q);
+        q->state = RUNNING;
+        q->cycles += 0.1;
+
+        swtch(&(c->scheduler), q->context);
+        switchkvm();
+
+        c->proc = 0;
+      }
+    }
+    // cprintf("queue level: %d\n", noLevel1Process ? noLevel2Process ? 3 : 2 : 1);
+
+    release(&ptable.lock);
   }
 }
 
@@ -418,7 +532,7 @@ void
 sleep(void *chan, struct spinlock *lk)
 {
   struct proc *p = myproc();
-  
+
   if(p == 0)
     panic("sleep");
 
@@ -531,4 +645,10 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+struct proc*
+  get_proc(void)
+{
+  return ptable.proc;
 }

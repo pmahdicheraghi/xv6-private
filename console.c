@@ -188,16 +188,12 @@ struct {
 
 #define C(x)  ((x)-'@')  // Control-x
 
-typedef ushort bool;
-#define false 0
-#define true 1
-
 bool
 isNumber(char c) {
   if (c >= '0' && c <= '9')
-    return 1;
+    return true;
   else 
-    return 0;
+    return false;
 }
 
 #define COMMAND_MEMORY_LENGHT 15
