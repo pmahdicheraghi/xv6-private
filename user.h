@@ -32,6 +32,8 @@ int change_file_size(const char*, int);
 int get_callers(int);
 int get_parent_pid(void);
 int proc_info(void);
+int change_priority(int, int);
+int change_lottery(int, int);
 
 // ------------------------------------------
 

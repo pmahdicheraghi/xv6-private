@@ -40,14 +40,15 @@ pinit(void)
 
 // Must be called with interrupts disabled
 int
-cpuid() {
+cpuid() 
+{
   return mycpu()-cpus;
 }
 
 // Must be called with interrupts disabled to avoid the caller being
 // rescheduled between reading lapicid and running through the loop.
 struct cpu*
-  mycpu(void)
+mycpu(void)
 {
   int apicid, i;
 
@@ -67,7 +68,7 @@ struct cpu*
 // Disable interrupts so that we are not rescheduled
 // while reading proc from the cpu structure
 struct proc*
-  myproc(void) {
+myproc(void) {
   struct cpu *c;
   struct proc *p;
   pushcli();
@@ -648,7 +649,55 @@ procdump(void)
 }
 
 struct proc*
-  get_proc(void)
+get_procs(void)
 {
   return ptable.proc;
+}
+
+int
+change_priority(int pid, int newLevel) 
+{
+  struct proc* p = 0;
+
+  if (newLevel != 1 && newLevel != 2 && newLevel != 3) {
+    return -1;
+  }
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->pid == pid)
+      break;
+  }
+  if (p == 0) {
+    release(&ptable.lock);
+    cprintf("pid not found");
+    return -1;
+  }
+  else {
+    p->priority = newLevel;
+    release(&ptable.lock);
+    return 0;
+  }
+}
+
+int
+change_lottery(int pid, int newLottery) 
+{
+  struct proc* p = 0;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->pid == pid)
+      break;
+  }
+  if (p == 0) {
+    release(&ptable.lock);
+    cprintf("pid not found");
+    return -1;
+  }
+  else {
+    p->lotteryTickets = newLottery;
+    release(&ptable.lock);
+    return 0;
+  }
 }

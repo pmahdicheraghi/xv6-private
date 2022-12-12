@@ -28,3 +28,5 @@
 #define SYS_get_callers         24
 #define SYS_get_parent_pid      25
 #define SYS_proc_info           26
+#define SYS_change_priority     27
+#define SYS_change_lottery      28

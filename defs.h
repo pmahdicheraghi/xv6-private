@@ -121,7 +121,9 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 
-struct proc*    get_proc(void);
+struct proc*    get_procs(void);
+int             change_priority(int, int);
+int             change_lottery(int, int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

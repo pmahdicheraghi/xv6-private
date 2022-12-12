@@ -135,7 +135,7 @@ sys_proc_info(void)
     [ZOMBIE]    "ZOMBIE"
   };
 
-  struct proc* proc = get_proc();
+  struct proc* proc = get_procs();
   cprintf("name\t\tpid\tstate\tlevel\tarrival\ttickets\tcycles\tPR\tAR\tCR\trank\n");
   cprintf("---------------------------------------------------------------------------------------------\n");
   for (int i = 0; i < NPROC; i++) {
@@ -151,4 +151,26 @@ sys_proc_info(void)
     cprintf("%s\n", floatToString(proc[i].priority * proc[i].pariorityRatio + proc[i].arrivalTime * proc[i].arrivalRatio + proc[i].cycles * proc[i].cyclesRatio));
   }
   return 0;
+}
+
+int
+sys_change_priority(void)
+{
+  int pid;
+  int newLevel;
+  if(argint(0, &pid) < 0 || argint(1, &newLevel) < 0)
+    return -1;
+
+  return change_priority(pid, newLevel);
+}
+
+int
+sys_change_lottery(void)
+{
+  int pid;
+  int newLottery;
+  if(argint(0, &pid) < 0 || argint(1, &newLottery) < 0)
+    return -1;
+
+  return change_lottery(pid, newLottery);
 }

@@ -187,6 +187,8 @@ UPROGS=\
 	_get_callers\
 	_sys3\
 	_proc_info\
+	_change_priority\
+	_change_lottery\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

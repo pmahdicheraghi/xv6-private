@@ -111,6 +111,8 @@ extern int sys_change_file_size(void);
 /*extern*/ int sys_get_callers(void);
 extern int sys_get_parent_pid(void);
 extern int sys_proc_info(void);
+extern int sys_change_priority(void);
+extern int sys_change_lottery(void);
 
 // ------------------------------------------
 
@@ -144,6 +146,8 @@ static int (*syscalls[])(void) = {
 [SYS_get_callers]           sys_get_callers,
 [SYS_get_parent_pid]        sys_get_parent_pid,
 [SYS_proc_info]             sys_proc_info,
+[SYS_change_priority]       sys_change_priority,
+[SYS_change_lottery]        sys_change_lottery,
 
 // ------------------------------------------
 
