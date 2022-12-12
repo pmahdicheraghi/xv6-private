@@ -117,12 +117,14 @@ formatString(char *path)
 char*
 floatToString(float f)
 {
-  static char buf[6] = "00.00";
+  static char buf[8] = "00000.0";
 
-  buf[0] = '0' + ((int)(f / 10) % 10);
-  buf[1] = '0' + ((int)f % 10);
-  buf[3] = '0' + ((int)(f * 10) % 10);
-  buf[4] = '0' + ((int)(f * 100) % 10);
+  buf[0] = '0' + ((int)(f / 10000) % 10);
+  buf[1] = '0' + ((int)(f / 1000) % 10);
+  buf[2] = '0' + ((int)(f / 100) % 10);
+  buf[3] = '0' + ((int)(f / 10) % 10);
+  buf[4] = '0' + ((int)f % 10);
+  buf[6] = '0' + ((int)(f * 10) % 10);
 
   return buf;
 }

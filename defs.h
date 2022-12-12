@@ -124,6 +124,8 @@ void            yield(void);
 struct proc*    get_procs(void);
 int             change_priority(int, int);
 int             change_lottery(int, int);
+int             change_local_bjf(int, int, int, int);
+int             change_global_bjf(int, int, int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

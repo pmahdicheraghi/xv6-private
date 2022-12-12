@@ -54,9 +54,9 @@ struct proc {
   float cycles;                // Process cycles
   uint arrivalTime;            // Process arrival time
   uint lotteryTickets;         // Process lottery tickets
-  float pariorityRatio;        // Process priority ratio
-  float arrivalRatio;          // Process arrival ratio
-  float cyclesRatio;           // Process cycles ratio
+  int pariorityRatio;          // Process priority ratio
+  int arrivalRatio;            // Process arrival ratio
+  int cyclesRatio;             // Process cycles ratio
 
 };
 

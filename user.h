@@ -24,7 +24,6 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 
-
 // ------------------------------------------
 
 int prime_number_factor(void);
@@ -34,6 +33,8 @@ int get_parent_pid(void);
 int proc_info(void);
 int change_priority(int, int);
 int change_lottery(int, int);
+int change_local_bjf(int, int, int, int);
+int change_global_bjf(int, int, int);
 
 // ------------------------------------------
 

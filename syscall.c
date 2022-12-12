@@ -113,6 +113,8 @@ extern int sys_get_parent_pid(void);
 extern int sys_proc_info(void);
 extern int sys_change_priority(void);
 extern int sys_change_lottery(void);
+extern int sys_change_local_bjf(void);
+extern int sys_change_global_bjf(void);
 
 // ------------------------------------------
 
@@ -148,6 +150,8 @@ static int (*syscalls[])(void) = {
 [SYS_proc_info]             sys_proc_info,
 [SYS_change_priority]       sys_change_priority,
 [SYS_change_lottery]        sys_change_lottery,
+[SYS_change_local_bjf]      sys_change_local_bjf,
+[SYS_change_global_bjf]     sys_change_global_bjf,
 
 // ------------------------------------------
 

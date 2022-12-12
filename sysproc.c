@@ -137,7 +137,7 @@ sys_proc_info(void)
 
   struct proc* proc = get_procs();
   cprintf("name\t\tpid\tstate\tlevel\tarrival\ttickets\tcycles\tPR\tAR\tCR\trank\n");
-  cprintf("---------------------------------------------------------------------------------------------\n");
+  cprintf("--------------------------------------------------------------------------------------------\n");
   for (int i = 0; i < NPROC; i++) {
     if (proc[i].state == UNUSED)
       continue;
@@ -145,10 +145,10 @@ sys_proc_info(void)
     cprintf("%s\t", formatString(proc[i].name));
     cprintf("%d\t%s\t%d\t%d\t%d\t", proc[i].pid, states[proc[i].state], proc[i].priority, proc[i].arrivalTime, proc[i].lotteryTickets);
     cprintf("%s\t", floatToString(proc[i].cycles));
-    cprintf("%s\t", floatToString(proc[i].pariorityRatio));
-    cprintf("%s\t", floatToString(proc[i].arrivalRatio));
-    cprintf("%s\t", floatToString(proc[i].cyclesRatio));
-    cprintf("%s\n", floatToString(proc[i].priority * proc[i].pariorityRatio + proc[i].arrivalTime * proc[i].arrivalRatio + proc[i].cycles * proc[i].cyclesRatio));
+    cprintf("%d\t", proc[i].pariorityRatio);
+    cprintf("%d\t", proc[i].arrivalRatio);
+    cprintf("%d\t", proc[i].cyclesRatio);
+    cprintf("%d\n", proc[i].priority * proc[i].pariorityRatio + proc[i].arrivalTime * proc[i].arrivalRatio + (int)proc[i].cycles * proc[i].cyclesRatio);
   }
   return 0;
 }
@@ -173,4 +173,29 @@ sys_change_lottery(void)
     return -1;
 
   return change_lottery(pid, newLottery);
+}
+
+int
+sys_change_local_bjf(void)
+{
+  int pid;
+  int pRatio;
+  int aRatio;
+  int cRatio;
+  if(argint(0, &pid) < 0 || argint(1, &pRatio) < 0 || argint(2, &aRatio) < 0 || argint(3, &cRatio) < 0)
+    return -1;
+
+  return change_local_bjf(pid, pRatio, aRatio, cRatio);
+}
+
+int
+sys_change_global_bjf(void)
+{
+  int pRatio;
+  int aRatio;
+  int cRatio;
+  if(argint(0, &pRatio) < 0 || argint(1, &aRatio) < 0 || argint(2, &cRatio) < 0)
+    return -1;
+
+  return change_global_bjf(pRatio, aRatio, cRatio);
 }

@@ -28,9 +28,9 @@ rand()
   return randstate;
 }
 
-float pariorityRatio = 0.5;
-float arrivalRatio = 0.5;
-float cyclesRatio = 0.5;
+int pariorityRatio = 1;
+int arrivalRatio = 1;
+int cyclesRatio = 1;
 
 void
 pinit(void)
@@ -438,7 +438,7 @@ scheduler(void)
     }
     if (noLevel1Process && noLevel2Process) { // priority queue 3
       struct proc* q = 0;
-      float minRank = 0;
+      int minRank = 0;
       for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
         if (p->state != RUNNABLE)
           continue;
@@ -446,7 +446,7 @@ scheduler(void)
         if (p->priority != 3)
           continue;
 
-        float rank = p->priority * p->pariorityRatio + p->arrivalTime * p->arrivalRatio + p->cycles * p->cyclesRatio;
+        int rank = p->priority * p->pariorityRatio + p->arrivalTime * p->arrivalRatio + p->cycles * p->cyclesRatio;
         if (minRank == 0 || rank < minRank) {
           minRank = rank;
           q = p;
@@ -700,4 +700,47 @@ change_lottery(int pid, int newLottery)
     release(&ptable.lock);
     return 0;
   }
+}
+
+int
+change_local_bjf(int pid, int pRatio, int aRatio, int cRatio) 
+{
+  struct proc* p = 0;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->pid == pid)
+      break;
+  }
+  if (p == 0) {
+    release(&ptable.lock);
+    cprintf("pid not found");
+    return -1;
+  }
+  else {
+    p->pariorityRatio = pRatio;
+    p->arrivalRatio = aRatio;
+    p->cyclesRatio = cRatio;
+    release(&ptable.lock);
+    return 0;
+  }
+}
+
+int
+change_global_bjf(int pRatio, int aRatio, int cRatio) 
+{
+  struct proc* p = 0;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    p->pariorityRatio = pRatio;
+    p->arrivalRatio = aRatio;
+    p->cyclesRatio = cRatio;
+  }
+  release(&ptable.lock);
+
+  pariorityRatio = pRatio;
+  arrivalRatio = aRatio;
+  cyclesRatio = cRatio;
+  return 0;
 }

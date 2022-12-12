@@ -30,3 +30,5 @@
 #define SYS_proc_info           26
 #define SYS_change_priority     27
 #define SYS_change_lottery      28
+#define SYS_change_local_bjf    29
+#define SYS_change_global_bjf   30

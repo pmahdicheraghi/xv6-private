@@ -181,14 +181,17 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
-	_prime_numbers\
-	_prime_number_factor\
-	_change_file_size\
-	_get_callers\
-	_sys3\
 	_proc_info\
 	_change_priority\
 	_change_lottery\
+	_change_local_bjf\
+	_change_global_bjf\
+	_foo\
+	# _prime_numbers\
+	# _prime_number_factor\
+	# _change_file_size\
+	# _get_callers\
+	# _sys3\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
