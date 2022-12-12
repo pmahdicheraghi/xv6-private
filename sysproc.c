@@ -92,8 +92,8 @@ sys_uptime(void)
 
 // ------------------------------------------
 
-int 
-sys_prime_number_factor(void) 
+int
+sys_prime_number_factor(void)
 {
   struct proc *curproc = myproc();
   int numberREG = curproc->tf->edx;
@@ -116,10 +116,39 @@ sys_prime_number_factor(void)
     }
   }
   return biggest_prime_factor;
-} 
+}
 
 int
 sys_get_parent_pid(void)
 {
   return myproc()->parent->pid;
+}
+
+int
+sys_proc_info(void)
+{
+  static char* states[] = {
+    [EMBRYO]    "EMBRYO",
+    [SLEEPING]  "SLEEP ",
+    [RUNNABLE]  "RUNBLE",
+    [RUNNING]   "RUNING",
+    [ZOMBIE]    "ZOMBIE"
+  };
+
+  struct proc* proc = get_proc();
+  cprintf("name\t\tpid\tstate\tlevel\tarrival\ttickets\tcycles\tPR\tAR\tCR\trank\n");
+  cprintf("---------------------------------------------------------------------------------------------\n");
+  for (int i = 0; i < NPROC; i++) {
+    if (proc[i].state == UNUSED)
+      continue;
+
+    cprintf("%s\t", formatString(proc[i].name));
+    cprintf("%d\t%s\t%d\t%d\t%d\t", proc[i].pid, states[proc[i].state], proc[i].priority, proc[i].arrivalTime, proc[i].lotteryTickets);
+    cprintf("%s\t", floatToString(proc[i].cycles));
+    cprintf("%s\t", floatToString(proc[i].pariorityRatio));
+    cprintf("%s\t", floatToString(proc[i].arrivalRatio));
+    cprintf("%s\t", floatToString(proc[i].cyclesRatio));
+    cprintf("%s\n", floatToString(proc[i].priority * proc[i].pariorityRatio + proc[i].arrivalTime * proc[i].arrivalRatio + proc[i].cycles * proc[i].cyclesRatio));
+  }
+  return 0;
 }

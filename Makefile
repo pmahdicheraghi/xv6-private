@@ -186,6 +186,7 @@ UPROGS=\
 	_change_file_size\
 	_get_callers\
 	_sys3\
+	_proc_info\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

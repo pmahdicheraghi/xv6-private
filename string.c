@@ -103,3 +103,26 @@ strlen(const char *s)
   return n;
 }
 
+char*
+formatString(char *path)
+{
+  static char buf[16];
+  memset(buf, ' ', 15);
+  memmove(buf, path, 15);
+  if (strlen(path) < 15)
+    memset(buf + strlen(path), ' ', 15 - strlen(path));
+  return buf;
+}
+
+char*
+floatToString(float f)
+{
+  static char buf[6] = "00.00";
+
+  buf[0] = '0' + ((int)(f / 10) % 10);
+  buf[1] = '0' + ((int)f % 10);
+  buf[3] = '0' + ((int)(f * 10) % 10);
+  buf[4] = '0' + ((int)(f * 100) % 10);
+
+  return buf;
+}

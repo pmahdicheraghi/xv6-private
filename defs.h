@@ -121,6 +121,8 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 
+struct proc*    get_proc(void);
+
 // swtch.S
 void            swtch(struct context**, struct context*);
 
@@ -147,6 +149,9 @@ char*           safestrcpy(char*, const char*, int);
 int             strlen(const char*);
 int             strncmp(const char*, const char*, uint);
 char*           strncpy(char*, const char*, int);
+
+char*           formatString(char *);
+char*           floatToString(float);
 
 // syscall.c
 int             argint(int, int*);
