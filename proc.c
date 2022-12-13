@@ -172,6 +172,7 @@ userinit(void)
   p->pariorityRatio = pariorityRatio;
   p->arrivalRatio = arrivalRatio;
   p->cyclesRatio = cyclesRatio;
+  p->age = 0;
 
   release(&ptable.lock);
 }
@@ -248,6 +249,7 @@ fork(void)
   np->pariorityRatio = pariorityRatio;
   np->arrivalRatio = arrivalRatio;
   np->cyclesRatio = cyclesRatio;
+  np->age = 0;
 
   release(&ptable.lock);
 
@@ -415,6 +417,11 @@ scheduler(void)
           if (p->state != RUNNABLE)
             continue;
 
+          if (p->priority == 1)
+            continue;
+
+          p->age += 1;
+
           if (p->priority != 2)
             continue;
 
@@ -423,6 +430,7 @@ scheduler(void)
             switchuvm(p);
             p->state = RUNNING;
             p->cycles += 0.1;
+            p->age = 0;
 
             swtch(&(c->scheduler), p->context);
             switchkvm();
@@ -446,6 +454,8 @@ scheduler(void)
         if (p->priority != 3)
           continue;
 
+        p->age += 1;
+
         int rank = p->priority * p->pariorityRatio + p->arrivalTime * p->arrivalRatio + p->cycles * p->cyclesRatio;
         if (minRank == 0 || rank < minRank) {
           minRank = rank;
@@ -457,6 +467,7 @@ scheduler(void)
         switchuvm(q);
         q->state = RUNNING;
         q->cycles += 0.1;
+        q->age = 0;
 
         swtch(&(c->scheduler), q->context);
         switchkvm();
@@ -464,7 +475,17 @@ scheduler(void)
         c->proc = 0;
       }
     }
-    // cprintf("queue level: %d\n", noLevel1Process ? noLevel2Process ? 3 : 2 : 1);
+
+    // aging
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p->state != RUNNABLE)
+        continue;
+
+      if (p->age >= 8000) {
+        p->priority -= 1;
+        p->age = 0;
+      }
+    }
 
     release(&ptable.lock);
   }

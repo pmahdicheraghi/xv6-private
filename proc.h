@@ -57,7 +57,7 @@ struct proc {
   int pariorityRatio;          // Process priority ratio
   int arrivalRatio;            // Process arrival ratio
   int cyclesRatio;             // Process cycles ratio
-
+  uint age;                    // Process age
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -136,8 +136,8 @@ sys_proc_info(void)
   };
 
   struct proc* proc = get_procs();
-  cprintf("name\t\tpid\tstate\tlevel\tarrival\ttickets\tcycles\tPR\tAR\tCR\trank\n");
-  cprintf("--------------------------------------------------------------------------------------------\n");
+  cprintf("name\t\tpid\tstate\tlevel\tarrival\ttickets\tcycles\tPR\tAR\tCR\trank\tage\n");
+  cprintf("----------------------------------------------------------------------------------------------------\n");
   for (int i = 0; i < NPROC; i++) {
     if (proc[i].state == UNUSED)
       continue;
@@ -148,7 +148,8 @@ sys_proc_info(void)
     cprintf("%d\t", proc[i].pariorityRatio);
     cprintf("%d\t", proc[i].arrivalRatio);
     cprintf("%d\t", proc[i].cyclesRatio);
-    cprintf("%d\n", proc[i].priority * proc[i].pariorityRatio + proc[i].arrivalTime * proc[i].arrivalRatio + (int)proc[i].cycles * proc[i].cyclesRatio);
+    cprintf("%d\t", proc[i].priority * proc[i].pariorityRatio + proc[i].arrivalTime * proc[i].arrivalRatio + (int)proc[i].cycles * proc[i].cyclesRatio);
+    cprintf("%d\n", proc[i].age);
   }
   return 0;
 }
