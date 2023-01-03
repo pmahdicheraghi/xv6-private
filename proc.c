@@ -12,6 +12,69 @@ struct {
   struct proc proc[NPROC];
 } ptable;
 
+// ------------------------------------------
+#define NSEM 5
+
+typedef struct {
+  int value;
+  int head;
+  int tail;
+  struct proc *queue[NPROC];
+  struct spinlock lock;
+} semaphore;
+
+semaphore semaphors[NSEM];
+
+void
+sem_init(int i, int value)
+{
+  if (i < 0 || i >= NSEM) {
+    panic("sem init: invalid index");
+    return;
+  }
+  semaphors[i].value = value;
+  semaphors[i].head = 0;
+  semaphors[i].tail = 0;
+  initlock(&semaphors[i].lock, "semaphor");
+}
+
+void
+sem_acquire(int i)
+{
+  if (i < 0 || i >= NSEM) {
+    panic("sem acquire: invalid index");
+    return;
+  }
+  acquire(&semaphors[i].lock);
+  semaphors[i].value--;
+  if (semaphors[i].value < 0) {
+    struct proc* p = myproc();
+    semaphors[i].queue[semaphors[i].tail] = p;
+    semaphors[i].tail = (semaphors[i].tail + 1) % NPROC;
+    sleep(p, &semaphors[i].lock);
+  }
+  release(&semaphors[i].lock);
+}
+
+void
+sem_release(int i)
+{
+  if (i < 0 || i >= NSEM) {
+    panic("sem release: invalid index");
+    return;
+  }
+  acquire(&semaphors[i].lock);
+  semaphors[i].value++;
+  if (semaphors[i].value <= 0) {
+    struct proc* p = semaphors[i].queue[semaphors[i].head];
+    semaphors[i].head = (semaphors[i].head + 1) % NPROC;
+    wakeup(p);
+  }
+  release(&semaphors[i].lock);
+}
+
+// ------------------------------------------
+
 static struct proc *initproc;
 
 int nextpid = 1;

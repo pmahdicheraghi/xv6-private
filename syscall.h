@@ -32,3 +32,7 @@
 #define SYS_change_lottery      28
 #define SYS_change_local_bjf    29
 #define SYS_change_global_bjf   30
+
+#define SYS_sem_init            31
+#define SYS_sem_acquire         32
+#define SYS_sem_release         33

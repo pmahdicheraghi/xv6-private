@@ -115,6 +115,9 @@ extern int sys_change_priority(void);
 extern int sys_change_lottery(void);
 extern int sys_change_local_bjf(void);
 extern int sys_change_global_bjf(void);
+extern int sys_sem_init(void);
+extern int sys_sem_acquire(void);
+extern int sys_sem_release(void);
 
 // ------------------------------------------
 
@@ -152,6 +155,9 @@ static int (*syscalls[])(void) = {
 [SYS_change_lottery]        sys_change_lottery,
 [SYS_change_local_bjf]      sys_change_local_bjf,
 [SYS_change_global_bjf]     sys_change_global_bjf,
+[SYS_sem_init]              sys_sem_init,
+[SYS_sem_acquire]           sys_sem_acquire,
+[SYS_sem_release]           sys_sem_release,
 
 // ------------------------------------------
 

@@ -126,6 +126,9 @@ int             change_priority(int, int);
 int             change_lottery(int, int);
 int             change_local_bjf(int, int, int, int);
 int             change_global_bjf(int, int, int);
+void            sem_init(int, int);
+void            sem_acquire(int);
+void            sem_release(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
