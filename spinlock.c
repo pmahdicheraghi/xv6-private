@@ -100,7 +100,6 @@ holding(struct spinlock *lock)
 // Pushcli/popcli are like cli/sti except that they are matched:
 // it takes two popcli to undo two pushcli.  Also, if interrupts
 // are off, then pushcli, popcli leaves them off.
-
 void
 pushcli(void)
 {
