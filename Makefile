@@ -187,6 +187,7 @@ UPROGS=\
 	_change_local_bjf\
 	_change_global_bjf\
 	_foo\
+	_dining_philosophers\
 	# _prime_numbers\
 	# _prime_number_factor\
 	# _change_file_size\
